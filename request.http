@@ -1,0 +1,22 @@
+POST http://localhost:3000/api/v1/register
+Content-Type: application/json
+
+{
+    "email" : "moraldi@gmail.com",
+    "password" : "moraldi123"
+}
+###
+POST http://localhost:3000/api/v1/login
+Content-Type: application/json
+
+{
+    "email" : "aldi@gmail.com",
+    "password" : "aldi123"
+}
+###
+POST http://localhost:3000/api/v1/profiles/create
+content-type: multipart/form-data
+
+{
+
+}
