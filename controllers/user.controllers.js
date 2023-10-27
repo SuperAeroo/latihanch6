@@ -2,6 +2,7 @@ const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const pool = require('../libs/postgres')
 const { JWT_SECRET_KEY } = process.env;
 
 module.exports = {
@@ -74,7 +75,41 @@ module.exports = {
 
         }
     },
-    authenticate : (req, res, next) => {
-        
+    authenticate : async (req, res, next) => {
+        try {
+            let { id } = req.params
+            id = Number(id)
+                // ------ menggunakan pool query postgres -----
+            // let getUser = await pool.query(`SELECT "UserProfile"."first_name",
+            //                                 "UserProfile"."last_name", "User"."email",
+            //                                 "UserProfile"."birth_date", "UserProfile"."profile_picture"
+            //                                 FROM "User"
+            //                                 INNER JOIN "UserProfile"
+            //                                 ON "User"."id" = "UserProfile"."idUser" 
+            //                                 WHERE "User"."id" = $1`,[id])
+            // res.status(200).json({
+            //     status : true,
+            //     message : 'OK!',
+            //     data : getUser.rows[0]
+            // })
+            
+            // ------ menggunakan prisma -----
+            let {first_name , last_name, birth_date, profile_picture} = await prisma.userProfile.findUnique({
+                where:{idUser : req.user.id}
+            })
+            let {email} = await prisma.user.findUnique({
+                where:{id : req.user.id}
+              })
+
+              
+            res.status(200).json({
+                status : true,
+                message : 'OK!',
+                data : {first_name, last_name, email, birth_date, profile_picture}
+                // data : {user : req.user}
+            })
+        } catch (err) {
+            next(err)
+        }
     }
 }
